@@ -123,7 +123,10 @@ export const SelectCommonContext = (args: any) => {
     emit('change', data, newValue);
   };
   //grid下拉框筛选变化
-  const handleInputChange = (field: string | number) => {
+  const handleInputChange = (field?: string | number) => {
+    if(!field) {
+      return
+    }
     const $table = xTable.value;
     const data = filter.value[field];
     const column = $table.getColumnByField(field);

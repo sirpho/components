@@ -46,12 +46,12 @@
             showHeader,
           }"
         >
-          <template v-for="item in props.gridProps.columns" :key="item.field" #[item.field]>
+          <template v-for="item in props.gridProps.columns" :key="item.field" #[item.field!]>
             <Form.ItemRest>
               <Input
-                v-model:value="filter[item.field]"
+                v-model:value="filter[item.field!]"
                 size="small"
-                @change="() => handleInputChange(item.field)"
+                @change="() => handleInputChange(item.field!)"
               />
             </Form.ItemRest>
           </template>
@@ -224,7 +224,7 @@
       : false,
   );
 
-  const defaultOption = {
+  const defaultOption: any = {
     inputProps: {
       size: 'small',
       style: { width: '100%' },

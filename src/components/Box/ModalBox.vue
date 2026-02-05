@@ -25,16 +25,16 @@
       size="small"
       v-if="!useSelect"
       v-model:value="inputValue"
-      v-bind="{ ...props.inputProps, disabled: props.inputProps?.disabled || props.disabled }"
+      v-bind="{ ...props.autoCompleteProps, disabled: props.autoCompleteProps?.disabled || props.disabled }"
       :allow-clear="allowClear"
       :options="options"
       @search="onSearch"
       @blur="blur"
-      @change="inputValueChange"
+      @change="(_: any) => inputValueChange()"
     />
     <Button v-bind="{ ...props.buttonProps }" @click="openModal" :disabled="props.disabled">
-      <dash-outlined
-    /></Button>
+      <dash-outlined/>
+    </Button>
     <slot
       v-if="useModal"
       name="modal"
@@ -43,7 +43,7 @@
       :params="props.params"
     ></slot>
     <vxe-modal
-      v-model="modalVisible.value"
+      v-model="modalVisible"
       esc-closable
       lock-view
       :show-footer="mode == 'multiple' ? true : false"
@@ -75,12 +75,12 @@
           <template #toolbar_buttons>
             <slot name="toolbar_buttons" :loadData="loadData"></slot>
           </template>
-          <template v-for="item in props.gridProps?.columns" :key="item.field" #[item.field]>
+          <template v-for="item in props.gridProps?.columns" :key="item.field" #[item.field!]>
             <Form.ItemRest>
               <Input
-                v-model:value="filter[item.field]"
+                v-model:value="filter[item.field!]"
                 size="small"
-                @change="() => handleInputChange(item.field)"
+                @change="() => handleInputChange(item.field!)"
               />
             </Form.ItemRest>
           </template>
@@ -93,7 +93,7 @@
   import { ref, onMounted, computed, reactive, nextTick } from 'vue';
   import { Input, Select, Form, Button, AutoComplete } from 'ant-design-vue';
   import { VxeGridInstance, VxeGridProps } from 'vxe-table';
-  import type { InputProps, ButtonProps } from 'ant-design-vue';
+  import type { AutoCompleteProps, InputProps, ButtonProps } from 'ant-design-vue';
   import { DashOutlined } from '@ant-design/icons-vue';
   import { SelectCommonContext } from './common';
 
@@ -108,6 +108,10 @@
      * @link https://www.antdv.com/components/input-cn#API
      */
     inputProps?: InputProps;
+    /**
+     * @description AutoComplete属性 ant-design-vue
+     */
+    autoCompleteProps?: | AutoCompleteProps;
     /**
      * 按钮的属性 ant-design-vue
      */
@@ -212,11 +216,11 @@
   const emit = defineEmits(['update:value', 'change', 'input', 'blur']);
   const props = withDefaults(defineProps<Props>(), {
     manualRequest: false,
-    inputProps: () => ({}),
-    gridProps: () => ({}),
+    inputProps: () => ({} as any),
+    gridProps: () => ({} as any),
     buttonProps: () => ({
       size: 'small',
-    }),
+    } as any),
     mode: '',
     allowClear: true,
     transformData: (e: any) => e,
@@ -307,7 +311,7 @@
     },
   };
 
-  const defaultOption = {
+  const defaultOption: any = {
     inputProps: {
       size: 'small',
       style: { width: '160px' },
