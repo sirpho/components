@@ -11,6 +11,12 @@
     "prepublish": "pnpm run build",
     "preview": "vite preview"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sirpho/components.git"
+  },
+  "author": "sirpho",
+  "license": "MIT",
   "files": [
     "dist"
   ],
@@ -48,5 +54,6 @@
   "volta": {
     "node": "18.17.1",
     "pnpm": "8.6.12"
-  }
+  },
+  "description": "sirpho components"
 }
