@@ -89,6 +89,11 @@ export const vxeTableDefaultConfig: any = {
   },
 };
 
-export function registerVariant(defHttp: any, variants: any) {
+/**
+ * Combox注册axios和默认接口链接
+ * @param defHttp
+ * @param variants
+ */
+export const registerVariant = (defHttp: any, variants: any) => {
   globalConfig.setConfig({ http: defHttp, variants });
 }
