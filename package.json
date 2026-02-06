@@ -1,10 +1,10 @@
 {
   "name": "@sirpho/components",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "type": "module",
-  "main": "dist/index.umd.cjs",
-  "module": "dist/index.js",
-  "types": "dist/components/index.d.ts",
+  "main": "./dist/index.umd.js",
+  "module": "./dist/index.es.js",
+  "types": "./dist/components/index.d.ts",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",
@@ -52,8 +52,8 @@
     "vxe-table": "^4.3.0 || ^4.5.0 || ^4.6.0"
   },
   "volta": {
-    "node": "18.17.1",
-    "pnpm": "8.6.12"
+    "node": "20.11.1",
+    "pnpm": "8.15.4"
   },
   "description": "sirpho components"
 }

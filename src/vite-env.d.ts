@@ -11,7 +11,3 @@ declare module '*.vue' {
 declare interface Fn<T = any, R = T> {
   (...arg: T[]): R;
 }
-
-declare interface Window {
-  AWS: any;
-}
