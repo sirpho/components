@@ -464,9 +464,6 @@ export default {
 .my-filter-excel .my-fe-search .my-fe-search-list .my-fe-search-item {
   display: flex;
   width: 186px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   cursor: pointer;
 }
 
