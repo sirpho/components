@@ -403,7 +403,7 @@ export default {
   name: 'FilterExtend',
 };
 </script>
-<style lang="scss" scoped>
+<style lang="less" scoped>
 .my-filter-excel {
   min-width: 230px;
   padding: 10px 16px;
