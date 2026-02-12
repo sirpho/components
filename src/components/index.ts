@@ -5,6 +5,7 @@ import ComboBox from './Box/ComboBox.vue';
 import ModalBox from './Box/ModalBox.vue';
 import PageContainer from './PageContainer/index.vue';
 import QueryFilterContainer from './QueryFilterContainer/index.vue';
+import OverflowTooltip from './OverflowTooltip/index.vue';
 import { vxeTableDefaultConfig, registerVariant } from "./Box/config";
 
 // 按需导入用
@@ -13,6 +14,7 @@ export {
   QueryFilterContainer,
   VxeContainer,
   FilterExtend,
+  OverflowTooltip,
   StatusPop,
   ComboBox,
   ModalBox,

@@ -10,6 +10,7 @@
 | 查询容器    | QueryFilterContainer |
 | 日志弹框    | StatusPop            |
 | vxe容器   | VxeContainer         |
+| 文本超出提示器 | OverflowTooltip      |
 
 - [npm包地址](https://www.npmjs.com/package/@sirpho/components)
 

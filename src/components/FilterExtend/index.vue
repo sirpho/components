@@ -5,19 +5,22 @@
         <div class="my-fe-search">
           <div class="my-fe-search-top">
             <vxe-input v-model="state.option.data.sVal" placeholder="搜索" />
-            <i class="vxe-icon-search my-fe-search-icon"></i>
+            <i class="vxe-icon-search my-fe-search-icon" />
           </div>
           <div class="my-fe-search-list">
             <div class="my-fe-search-item" @click="sAllEvent">
               <span
-                class="vxe-icon-checkbox-unchecked my-fe-search-item-icon"
                 v-if="state.option.data.vals.length === 0"
-              ></span>
+                class="vxe-icon-checkbox-unchecked my-fe-search-item-icon"
+              />
               <span
-                class="vxe-icon-checkbox-indeterminate my-fe-search-item-icon icon-color"
                 v-else-if="state.option.data.vals.length !== searchList.length"
-              ></span>
-              <span class="vxe-icon-checkbox-checked my-fe-search-item-icon icon-color" v-else></span>
+                class="vxe-icon-checkbox-indeterminate my-fe-search-item-icon icon-color"
+              />
+              <span
+                v-else
+                class="vxe-icon-checkbox-checked my-fe-search-item-icon icon-color"
+              />
               <span style="padding-left: 10px"> (全选)</span>
             </div>
             <vxe-list height="165" :scroll-y="{ enabled: true }" :data="searchList">
@@ -35,11 +38,10 @@
                         ? 'vxe-icon-checkbox-unchecked my-fe-search-item-icon'
                         : 'vxe-icon-checkbox-checked icon-color my-fe-search-item-icon',
                     ]"
-                  ></span>
-                  <Tooltip>
-                    <template #title>{{ val }}</template>
+                  />
+                  <OverflowTooltip :title="val">
                     <span style="padding-left: 10px"> {{ val }}</span>
-                  </Tooltip>
+                  </OverflowTooltip>
                 </div>
               </template>
             </vxe-list>
@@ -48,8 +50,13 @@
       </TabPane>
       <TabPane key="2" tab="按条件" force-render>
         <div class="container">
-          <vxe-select v-model="state.option.data.cdt" transfer @change="handleChangeCdt">
-            <vxe-option v-for="item in cdtList" :key="item.value" :value="item.value" :label="item.label" />
+          <vxe-select v-model="state.option.data.cdt" transfer @change="handlecdtChange">
+            <vxe-option
+              v-for="item in cdtList"
+              :key="item.value"
+              :value="item.value"
+              :label="item.label"
+            />
           </vxe-select>
           <vxe-select
             style="margin-top: 10px"
@@ -57,21 +64,29 @@
             transfer
             v-show="state.option.data.cdt !== 'null' && state.option.data.cdt"
           >
-            <vxe-option v-for="item in CdtListComputed" :key="item.value" :value="item.value" :label="item.label" />
+            <vxe-option
+              v-for="item in CdtListComputed"
+              :key="item.value"
+              :value="item.value"
+              :label="item.label"
+            />
           </vxe-select>
           <vxe-input
             style="margin-top: 10px"
             :type="state.option.data.cdt"
             v-model="state.option.data.cdt3"
-            v-show="state.option.data.cdt2 && !empty.find((ite: any) => ite === state.option.data.cdt2)"
+            v-show="
+              state.option.data.cdt2 && !empty.find((item) => item === state.option.data.cdt2)
+            "
             transfer
           />
-          <div v-show="state.option.data.cdt2 && more.find((ite: any) => ite === state.option.data.cdt2)">与</div>
+          <div
+            v-show="state.option.data.cdt2 && more.find((item) => item === state.option.data.cdt2)">与</div>
           <vxe-input
             transfer
             v-model="state.option.data.cdt4"
             :type="state.option.data.cdt"
-            v-show="state.option.data.cdt2 && more.find((ite: any) => ite === state.option.data.cdt2)"
+            v-show="state.option.data.cdt2 && more.find((item) => item === state.option.data.cdt2)"
           />
         </div>
       </TabPane>
@@ -83,15 +98,11 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'FilterExtend',
-};
-</script>
 <script lang="ts" setup>
-import { PropType, reactive, computed, watch, defineProps, ref } from 'vue';
+import { PropType, reactive, computed, watch } from 'vue';
 import { VxeGlobalRendererHandles } from 'vxe-table';
-import { Tabs, TabPane, message, Tooltip } from 'ant-design-vue';
+import { Tabs, TabPane, message } from 'ant-design-vue';
+import OverflowTooltip from '../OverflowTooltip/index.vue';
 
 const props = defineProps({
   params: Object as PropType<VxeGlobalRendererHandles.RenderFilterParams>,
@@ -167,7 +178,9 @@ const searchList = computed(() => {
   const { option, colValList } = state;
   if (option) {
     if (option.data.sVal) {
-      const searchResult = colValList.filter((val) => String(val).indexOf(String(option.data.sVal)) > -1);
+      const searchResult = colValList.filter(
+        (val) => String(val).indexOf(String(option.data.sVal)) > -1,
+      );
       option.data.vals = [...searchResult];
       return props.sort ? searchResult.sort() : searchResult;
     }
@@ -370,7 +383,7 @@ const resetFilterEvent = () => {
   }
 };
 
-const handleChangeCdt = () => {
+const handlecdtChange = () => {
   state.option.data.cdt2 = '';
   state.option.data.cdt3 = '';
   state.option.data.cdt4 = '';
@@ -385,11 +398,16 @@ watch(
 );
 </script>
 
-<style lang="less" scoped>
+<script lang="ts">
+export default {
+  name: 'FilterExtend',
+};
+</script>
+<style lang="scss" scoped>
 .my-filter-excel {
-  user-select: none;
-  padding: 10px 16px;
   min-width: 230px;
+  padding: 10px 16px;
+  user-select: none;
 }
 
 .my-filter-excel .my-fe-search {
@@ -419,36 +437,37 @@ watch(
 }
 
 .my-filter-excel .my-fe-search .my-fe-search-top > input {
-  border: 1px solid #ababab;
   height: 22px;
+  border: 1px solid #ababab;
   line-height: 22px;
 }
 
 .my-filter-excel .my-fe-search .my-fe-search-top > .my-fe-search-icon {
   position: absolute;
-  right: 5px;
   top: 7px;
+  right: 5px;
 }
 
 .my-filter-excel .my-fe-search .my-fe-search-list {
-  margin: 0;
-  border: 1px solid #e2e4e7;
   height: 200px;
+  margin: 0;
   padding: 6px;
+  border: 1px solid #e2e4e7;
   border-radius: 4px;
 }
 
 .my-filter-excel .my-fe-search .my-fe-search-list .scroll {
-  overflow: auto;
   height: 165px;
+  overflow: auto;
 }
 
 .my-filter-excel .my-fe-search .my-fe-search-list .my-fe-search-item {
-  cursor: pointer;
+  display: flex;
+  width: 186px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  width: 186px;
+  cursor: pointer;
 }
 
 .my-filter-excel .my-fe-search .my-fe-search-list .my-fe-search-item .my-fe-search-item-icon {
@@ -456,8 +475,8 @@ watch(
 }
 
 .my-filter-excel .my-fe-footer {
-  text-align: right;
   padding-top: 10px;
+  text-align: right;
 }
 
 .icon-color {
@@ -465,9 +484,9 @@ watch(
 }
 
 .container {
-  border-radius: 4px;
-  border: 1px solid #e2e4e7;
   height: 234px;
   padding: 10px;
+  border: 1px solid #e2e4e7;
+  border-radius: 4px;
 }
 </style>
