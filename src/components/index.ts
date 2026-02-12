@@ -1,24 +1,26 @@
-import VxeContainer from './VxeContainer/index.vue';
-import FilterExtend from './FilterExtend/index.vue';
-import StatusPop from './StatusPop/index.vue';
-import ComboBox from './Box/ComboBox.vue';
-import ModalBox from './Box/ModalBox.vue';
-import PageContainer from './PageContainer/index.vue';
-import QueryFilterContainer from './QueryFilterContainer/index.vue';
-import OverflowTooltip from './OverflowTooltip/index.vue';
 import { vxeTableDefaultConfig, registerVariant } from "./Box/config";
+import FilterExtend from './FilterExtend/index.vue';
+import vxeContainer from './VxeContainer/index.vue';
+import statusPop from './StatusPop/index.vue';
+import comboBox from './Box/ComboBox.vue';
+import modalBox from './Box/ModalBox.vue';
+import pageContainer from './PageContainer/index.vue';
+import queryFilterContainer from './QueryFilterContainer/index.vue';
+import overflowTooltip from './OverflowTooltip/index.vue';
 
-// 按需导入用
+import { withInstall } from '../utils'
+
 export {
-  PageContainer,
-  QueryFilterContainer,
-  VxeContainer,
   FilterExtend,
-  OverflowTooltip,
-  StatusPop,
-  ComboBox,
-  ModalBox,
   vxeTableDefaultConfig,
   registerVariant
 };
+
+export const VxeContainer = withInstall(vxeContainer);
+export const StatusPop = withInstall(statusPop);
+export const ComboBox = withInstall(comboBox);
+export const ModalBox = withInstall(modalBox);
+export const PageContainer = withInstall(pageContainer);
+export const QueryFilterContainer = withInstall(queryFilterContainer);
+export const OverflowTooltip = withInstall(overflowTooltip);
 
