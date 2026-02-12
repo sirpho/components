@@ -39,7 +39,7 @@ const bindProps = computed(() => ({
 const handleMouseEnter = (event: MouseEvent) => {
   // 判断是否text-overflow, 如果是就显示tooltip
   const cellChild = (event.target as HTMLElement).querySelector(
-    '.overflow-tooltip__cell',
+    '.sirpho-overflow-tooltip__cell',
   ) as HTMLElement;
   if (!cellChild.childNodes.length) {
     visible.value = false;
