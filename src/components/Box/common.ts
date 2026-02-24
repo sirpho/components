@@ -102,12 +102,12 @@ export const SelectCommonContext = (args: any) => {
     const data = toRaw(_data);
     const { value: fieldValue } = props.option;
     const { value } = props;
-    if (!value && !data[fieldValue]) {
+    if (!value && !data?.[fieldValue]) {
       return;
     }
-    if (value !== data[fieldValue]) {
-      emit('update:value', data[fieldValue] || '');
-      emit('change', data, data[fieldValue] || '');
+    if (value !== data?.[fieldValue]) {
+      emit('update:value', data?.[fieldValue] || '');
+      emit('change', data, data?.[fieldValue] || '');
     }
   };
   //设置多选模式下的值
@@ -215,7 +215,7 @@ export const SelectCommonContext = (args: any) => {
         const record = gridData.value.find((itm) => itm[props.option.value] === item);
         if (record) _needCheck.push(record);
       });
-      xTable.value.setCheckboxRow(_needCheck, true);
+      await xTable.value.setCheckboxRow(_needCheck, true);
     }
   };
   //处理下拉框数据选择

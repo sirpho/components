@@ -220,7 +220,7 @@
 
   const showHeader = computed(() =>
     props.allowCheckAllNum
-      ? xTable?.value?.getTableData().visibleData.length <= props.allowCheckAllNum
+      ? xTable?.value?.getTableData?.().visibleData.length <= props.allowCheckAllNum
       : false,
   );
 
@@ -255,12 +255,10 @@
   const selectClick = async () => {
     if (props.inputProps?.disabled || props.disabled) return;
     if (!pullDownRef.value.isPanelVisible()) {
-      handleFocus();
-      // await pullDownRef.value.showPanel();
-      // await xTable.value.clearFilter();
+      await handleFocus();
       return;
     }
-    pullDownRef.value.hidePanel();
+    await pullDownRef.value.hidePanel();
   };
   onMounted(doOnMount);
 
