@@ -15,9 +15,11 @@ import { getPadding } from '../../utils';
 
 interface Props extends TooltipProps {
   overflowLine?: number;
+  title?: string;
 }
 const props = withDefaults(defineProps<Props>(), {
   overflowLine: 1,
+  title: undefined,
 });
 
 /**
