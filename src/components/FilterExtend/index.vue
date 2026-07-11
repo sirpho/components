@@ -104,18 +104,26 @@ import { VxeGlobalRendererHandles } from 'vxe-table';
 import { Tabs, TabPane, message } from 'ant-design-vue';
 import OverflowTooltip from '../OverflowTooltip/index.vue';
 
+/** 组件属性：接收 vxe-table 筛选渲染参数 */
 const props = defineProps({
+  /** vxe-table 筛选渲染上下文参数 */
   params: Object as PropType<VxeGlobalRendererHandles.RenderFilterParams>,
+  /** 筛选器 ID，用于监听变化触发重新加载 */
   id: Number,
+  /** 是否对筛选值列表进行排序 */
   sort: Boolean || undefined,
 });
 
+/** 组件内部响应式状态 */
 const state = reactive({
   option: {
     data: {},
   } as any,
+  /** 当前列所有不重复的值列表 */
   colValList: [] as string[],
 });
+
+/** 筛选条件的默认数据结构 */
 const defaultObj = {
   vals: [], // 按选项：
   dVals: [], // 按选项：暂存默认值
@@ -133,8 +141,12 @@ const cdtList = [
   { label: '文本类', value: 'text' },
   { label: '日期类', value: 'date' },
 ];
+/** 需要显示"与"分隔符和第二个输入框的条件类型（范围选择） */
 const more = ['number-between', 'number-no-between', 'date-between', 'date-no-between'];
+/** 不需要输入框的条件类型（空值判断） */
 const empty = ['text-empty', 'text-no-empty'];
+
+/** 筛选条件分类映射表：按类型（数值/文本/日期）分类的具体条件选项 */
 const cdtObj = {
   null: [],
   number: [
@@ -165,6 +177,9 @@ const cdtObj = {
   ],
 };
 
+/**
+ * 根据当前选中的条件大类（数值/文本/日期/无），返回对应的具体条件选项列表
+ */
 const CdtListComputed = computed(() => {
   const cdt = state.option.data.cdt;
   if (cdt === 'number' || cdt === 'text' || cdt === 'null' || cdt === 'date') {
@@ -174,22 +189,43 @@ const CdtListComputed = computed(() => {
   return [];
 });
 
+/**
+ * 搜索过滤后的列表（纯计算，无副作用）
+ */
 const searchList = computed(() => {
-  const { option, colValList } = state;
-  if (option) {
-    if (option.data.sVal) {
-      const searchResult = colValList.filter(
-        (val) => String(val).indexOf(String(option.data.sVal)) > -1,
-      );
-      option.data.vals = [...searchResult];
-      return props.sort ? searchResult.sort() : searchResult;
-    }
-    option.data.vals = option.data.dVals?.length > 0 ? [...option.data.dVals] : [...colValList];
-    return props.sort ? colValList.sort() : colValList;
-  }
-  return [];
+  const { colValList } = state;
+  const sVal = state.option?.data?.sVal;
+  const result = sVal
+    ? colValList.filter((val) => String(val).indexOf(String(sVal)) > -1)
+    : colValList;
+  // sort 返回新数组，避免修改原引用
+  return props.sort ? [...result].sort() : result;
 });
 
+/**
+ * 同步 vals 与搜索条件变化（副作用从 computed 移出）
+ */
+const syncValsStop = watch(
+  () => state.option?.data?.sVal,
+  (sVal) => {
+    if (!state.option) return;
+    if (sVal) {
+      state.option.data.vals = state.colValList.filter(
+        (val) => String(val).indexOf(String(sVal)) > -1,
+      );
+    } else {
+      state.option.data.vals = state.option.data.dVals?.length > 0
+        ? [...state.option.data.dVals]
+        : [...state.colValList];
+    }
+  },
+  { immediate: true },
+);
+
+/**
+ * 加载筛选器数据：从表格获取当前列的所有不重复值作为候选项，
+ * 并初始化筛选条件数据结构
+ */
 const load = () => {
   const { params } = props;
   if (params) {
@@ -210,6 +246,9 @@ const load = () => {
   }
 };
 
+/**
+ * 全选/取消全选事件：切换 vals 为空数组或全部列值列表
+ */
 const sAllEvent = () => {
   const { option, colValList } = state;
   if (option) {
@@ -218,6 +257,10 @@ const sAllEvent = () => {
   }
 };
 
+/**
+ * 单个选项的勾选/取消勾选事件：在 vals 中添加或移除指定值
+ * @param val - 当前操作的显示值
+ */
 const sItemEvent = (val: string) => {
   const { option } = state;
   if (option) {
@@ -231,6 +274,10 @@ const sItemEvent = (val: string) => {
   }
 };
 
+/**
+ * 确认筛选事件：根据当前 tab 类型（按选项/按条件）执行不同的筛选应用逻辑。
+ * 按选项模式直接提交勾选的 vals；按条件模式根据条件类型调用对应的数值/文本/日期处理函数。
+ */
 const confirmFilterEvent = () => {
   const { params } = props;
   const { option } = state;
@@ -267,6 +314,10 @@ const confirmFilterEvent = () => {
   }
 };
 
+/**
+ * 文本条件筛选：根据选中的文本条件类型（包含/不包含/等于/空/开头/结尾）过滤表格数据，
+ * 将匹配的值去重后设置为 vals 并提交筛选
+ */
 const handleTextChecked = () => {
   if (!props.params || !state.option) return;
   const { $table, column, $panel } = props.params;
@@ -300,36 +351,34 @@ const handleTextChecked = () => {
   $panel.confirmFilter();
 };
 
+/**
+ * 日期条件筛选：根据选中的日期条件类型（等于/早于/晚于/介于/不介于）过滤表格数据。
+ * 预计算 cdt3/cdt4 的时间戳避免循环内重复创建 Date 对象。
+ * 将匹配的值去重后设置为 vals 并提交筛选
+ */
 const handleDateChecked = () => {
   if (!props.params || !state.option) return;
   const { $table, column, $panel } = props.params;
   const { data } = state.option;
   const { cdt2, cdt3, cdt4 } = data;
   const fullData = $table.getTableData().fullData;
+  // 预计算不变的 Date 时间戳，避免在循环中重复创建
+  const cdt3Time = new Date(cdt3).getTime();
+  const cdt4Time = new Date(cdt4).getTime();
   const filterData = fullData
     .filter((item) => {
+      const itemTime = new Date(item[column.field]).getTime();
       switch (cdt2) {
         case 'date-equal':
-          if (isNaN(new Date(item[column.field]).getTime())) return false;
-          return new Date(cdt3).getTime() === new Date(item[column.field]).getTime();
+          return !isNaN(itemTime) && cdt3Time === itemTime;
         case 'date-before':
-          if (isNaN(new Date(item[column.field]).getTime())) return false;
-          return new Date(cdt3).getTime() > new Date(item[column.field]).getTime();
+          return !isNaN(itemTime) && cdt3Time > itemTime;
         case 'date-after':
-          if (isNaN(new Date(item[column.field]).getTime())) return false;
-          return new Date(cdt3).getTime() < new Date(item[column.field]).getTime();
+          return !isNaN(itemTime) && cdt3Time < itemTime;
         case 'date-between':
-          if (isNaN(new Date(item[column.field]).getTime())) return false;
-          return (
-            new Date(cdt3).getTime() < new Date(item[column.field]).getTime() &&
-            new Date(cdt4).getTime() > new Date(item[column.field]).getTime()
-          );
+          return !isNaN(itemTime) && cdt3Time < itemTime && cdt4Time > itemTime;
         case 'date-no-between':
-          if (isNaN(new Date(item[column.field]).getTime())) return false;
-          return (
-            new Date(cdt3).getTime() > new Date(item[column.field]).getTime() &&
-            new Date(cdt4).getTime() < new Date(item[column.field]).getTime()
-          );
+          return !isNaN(itemTime) && cdt3Time > itemTime && cdt4Time < itemTime;
         default:
           return false;
       }
@@ -340,6 +389,10 @@ const handleDateChecked = () => {
   $panel.confirmFilter();
 };
 
+/**
+ * 数值条件筛选：根据选中的数值条件类型（大于/小于/介于/等于等）过滤表格数据，
+ * 将匹配的值去重后设置为 vals 并提交筛选
+ */
 const handleNumberChecked = () => {
   if (!props.params || !state.option) return;
   const { $table, column, $panel } = props.params;
@@ -375,6 +428,9 @@ const handleNumberChecked = () => {
   $panel.confirmFilter();
 };
 
+/**
+ * 重置筛选事件：调用 vxe-table 面板的重置方法清除所有筛选条件
+ */
 const resetFilterEvent = () => {
   const { params } = props;
   if (params) {
@@ -383,12 +439,16 @@ const resetFilterEvent = () => {
   }
 };
 
+/**
+ * 筛选大类切换事件：清空已选择的子条件（cdt2）和输入值（cdt3/cdt4）
+ */
 const handlecdtChange = () => {
   state.option.data.cdt2 = '';
   state.option.data.cdt3 = '';
   state.option.data.cdt4 = '';
 };
 
+/** 监听外部传入的 id 变化，触发筛选器数据重新加载 */
 watch(
   () => props.id,
   () => {

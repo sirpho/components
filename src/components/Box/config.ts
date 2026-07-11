@@ -1,31 +1,96 @@
+import type { HttpInstance, VariantMap } from './types';
+
 /**
- * 多列下拉全局配置
+ * 全局配置接口
  */
-export const globalConfig: any = {
+export interface GlobalConfig {
+  http: HttpInstance | null;
+  variants: VariantMap | null;
+  methods: ((params: Record<string, any>) => object) | null;
+  env: Record<string, unknown>;
+  /** 设置全局配置 */
+  setConfig(config: {
+    http?: HttpInstance;
+    variants?: VariantMap;
+    env?: Record<string, unknown>;
+    methods?: (params: Record<string, any>) => object;
+  }): void;
+}
+
+/**
+ * 全局配置对象，用于存储 HTTP 实例、环境变量和全局方法。
+ * 需在使用 ComboBox 前通过 `registerVariant` 或 `globalConfig.setConfig` 初始化。
+ */
+export const globalConfig: GlobalConfig = {
   http: null,
   variants: null,
-  methods: null, //存储xTable中的公共方法
+  methods: null, // 存储xTable中的公共方法
   env: {},
+  /**
+   * 设置全局配置，仅在首次调用时生效
+   * @param config - 配置对象，包含 http、variants、env、methods
+   */
   setConfig(
     config: {
-      http?: any;
-      variants?: any;
-      env?: any;
-      methods?: (params: { [key: string]: any }) => object;
+      http?: HttpInstance;
+      variants?: VariantMap;
+      env?: Record<string, unknown>;
+      methods?: (params: Record<string, any>) => object;
     } = {},
   ) {
     const { http, variants = {}, methods, env } = config;
-    this.http = http;
-    this.variants = variants;
-    this.methods = methods;
-    this.env = env;
+    this.http = http!;
+    this.variants = variants as VariantMap;
+    this.methods = methods!;
+    this.env = env!;
   },
 };
 
 /**
- * vxeTable默认配置
+ * Select 组件默认配置接口
  */
-export const vxeTableDefaultConfig: any = {
+export interface SelectDefaultOption {
+  inputProps: {
+    size: 'small';
+    style: { width: string };
+  };
+  gridProps: {
+    autoResize: boolean;
+    height: string;
+    columns: any[];
+  };
+}
+
+/** ComboBox 使用的默认配置（input 宽度 100%） */
+export const comboBoxDefaultOption: SelectDefaultOption = {
+  inputProps: {
+    size: 'small',
+    style: { width: '100%' },
+  },
+  gridProps: {
+    autoResize: true,
+    height: '300',
+    columns: [],
+  },
+};
+
+/** ModalBox 使用的默认配置（input 宽度 160px） */
+export const modalBoxDefaultOption: SelectDefaultOption = {
+  inputProps: {
+    size: 'small',
+    style: { width: '160px' },
+  },
+  gridProps: {
+    autoResize: true,
+    height: '300',
+    columns: [],
+  },
+};
+
+/**
+ * vxe-table 全局默认配置，定义表格的默认行为和样式
+ */
+export const vxeTableDefaultConfig = {
   size: 'mini',
   table: {
     border: 'full',
@@ -87,13 +152,13 @@ export const vxeTableDefaultConfig: any = {
       showStatus: true,
     },
   },
-};
+} as const;
 
 /**
- * Combox注册axios和默认接口链接
- * @param defHttp
- * @param variants
+ * 注册全局 HTTP 实例和变体配置，为 ComboBox/ModalBox 提供数据源
+ * @param defHttp - HTTP 请求实例，需实现 get 和 post 方法
+ * @param variants - 变体映射表，key 为 variant 名称，value 包含 url 和 method
  */
-export const registerVariant = (defHttp: any, variants: any) => {
+export const registerVariant = (defHttp: HttpInstance, variants: VariantMap) => {
   globalConfig.setConfig({ http: defHttp, variants });
-}
+};

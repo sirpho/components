@@ -1,5 +1,5 @@
 <template>
-  <vxe-pulldown ref="pullDownRef" transfer class="combo-box-container">
+  <vxe-pulldown ref="pullDownRef" transfer class="combo-box-container select-dropdown-shared">
     <template #default>
       <Select
         class="combo-box-container"
@@ -15,9 +15,9 @@
         @deselect="deselect"
         v-bind="{
           ...defaultOption.inputProps,
-          ...props.inputProps,
+          ...(props.inputProps as any),
           disabled: props.inputProps.disabled || props.disabled,
-        }"
+        } as any"
       >
         <template #maxTagPlaceholder="omittedValues">
           <span style="color: red">+ {{ omittedValues.length }}</span>
@@ -61,11 +61,13 @@
   </vxe-pulldown>
 </template>
 <script lang="ts" setup>
-  import { ComputedRef, computed, onMounted, ref } from 'vue';
+  import { computed, onMounted, ref } from 'vue';
   import { Input, Select, Form } from 'ant-design-vue';
-  import { VxeGridProps, VxeGridInstance, VxePulldownInstance } from 'vxe-table';
+  import type { VxeGridProps, VxeGridInstance, VxePulldownInstance } from 'vxe-table';
   import type { InputProps } from 'ant-design-vue';
   import { SelectCommonContext } from './common';
+  import { comboBoxDefaultOption as defaultOption } from './config';
+  import './comboBoxModalBox.less';
 
   type SelectTableRemoteConfig = {
     url: string;
@@ -138,7 +140,7 @@
     /**
      * 基础数据
      */
-    data?: object[] | ComputedRef<any[]>;
+    data?: object[] | (() => any[]);
     /**
      * @description 请求结束后 改变value 不适用onFocus
      * @params autoFill: 填入list第一项
@@ -146,7 +148,7 @@
      * @params noChange: 不做改变
      * @params 默认值：action传入值，action不存在时props.autoFill为true时为'autoFill',为false时:'clear'
      */
-    action?: 'autoFill' | 'clear' | 'noChange' | undefined;
+    action?: 'autoFill' | 'clear' | 'noChange';
     /**
      * 下拉宽度
      */
@@ -190,6 +192,7 @@
     maxSelectNum?: number;
   }
 
+  /** 定义组件事件：update:value（v-model）、change、input */
   const emit = defineEmits(['update:value', 'change', 'input']);
   const props = withDefaults(defineProps<Props>(), {
     value: undefined,
@@ -215,27 +218,26 @@
     maxSelectNum: undefined,
   });
 
+  /**
+   * 复选框可用性的判断方法：未勾选的行根据 maxSelectNum 限制是否允许勾选
+   * @param row - 当前行数据
+   * @returns 该行复选框是否可用
+   */
   const checkMethod = ({ row }: { row: Record<string, any> }) =>
     row.checked || (props?.maxSelectNum ? rowDataList.value.length < props.maxSelectNum : true);
 
+  /**
+   * 是否显示全选复选框：当过滤后数据量小于等于 allowCheckAllNum 时显示
+   */
   const showHeader = computed(() =>
     props.allowCheckAllNum
       ? xTable?.value?.getTableData?.().visibleData.length <= props.allowCheckAllNum
       : false,
   );
 
-  const defaultOption: any = {
-    inputProps: {
-      size: 'small',
-      style: { width: '100%' },
-    },
-    gridProps: {
-      autoResize: true,
-      height: '300',
-      columns: [],
-    },
-  };
+  /** vxe-grid 实例引用 */
   const xTable = ref({} as VxeGridInstance);
+  /** vxe-pulldown 实例引用 */
   const pullDownRef = ref({} as VxePulldownInstance);
   const {
     rowDataList,
@@ -252,6 +254,10 @@
     filter,
     doOnMount,
   } = SelectCommonContext({ props, emit, xTable, pullDownRef });
+
+  /**
+   * 选择框点击事件：已禁用时忽略；面板未展开则展开并聚焦，否则收起面板
+   */
   const selectClick = async () => {
     if (props.inputProps?.disabled || props.disabled) return;
     if (!pullDownRef.value.isPanelVisible()) {
@@ -260,8 +266,10 @@
     }
     await pullDownRef.value.hidePanel();
   };
+  /** 组件挂载时触发初始化逻辑 */
   onMounted(doOnMount);
 
+  /** 对外暴露 xTable 实例供外部调用 */
   defineExpose({
     xTable,
   });
@@ -269,62 +277,5 @@
 <style lang="less">
   .combo-box-container {
     width: 160px;
-
-    .my-dropdown {
-      min-height: 300px;
-      background-color: #fff;
-      box-shadow: 0 0 6px 2px rgb(0 0 0 / 10%);
-    }
-
-    .vxe-table--render-default.size--mini .vxe-header--column:not(.col--ellipsis) {
-      padding: 5px 0;
-    }
-
-    .ant-select-selection-overflow-item {
-      max-width: 80px;
-    }
-  }
-
-  .vxe-table .vxe-cell > .vxe-pulldown.combo-box-container {
-    width: 100%;
-
-    .ant-select-sm {
-      height: 28px !important;
-      border-radius: 4px;
-      box-shadow: none !important;
-      line-height: 28px !important;
-
-      .ant-select-selector {
-        height: 28px !important;
-        border-radius: 4px;
-        box-shadow: none !important;
-        line-height: 28px !important;
-      }
-
-      //.ant-select-selection-item {
-      //  line-height: 25px !important;
-      //}
-    }
-
-    .ant-input-affix-wrapper-sm {
-      height: 28px;
-      border-radius: 4px;
-      box-shadow: none !important;
-      line-height: 28px;
-    }
-
-    .ant-btn-sm {
-      height: 28px;
-      border-radius: 0 4px 4px 0;
-    }
-  }
-
-  .dropdown-table .vxe-table--header th .vxe-cell {
-    display: flex !important;
-    align-items: center;
-
-    .vxe-cell--title {
-      flex: 1;
-    }
   }
 </style>

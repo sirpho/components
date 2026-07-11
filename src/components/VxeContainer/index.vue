@@ -5,21 +5,36 @@ import { Splitpanes, Pane } from 'splitpanes';
 import useCalcHeight from '../../hooks/useCalcHeight';
 import 'splitpanes/dist/splitpanes.css';
 
+/**
+ * VxeContainer：基于 splitpanes 的栅格布局容器组件。
+ * 支持水平或垂直分割面板，子元素按比例分配空间，高度自动根据视口计算。
+ * 提供 reCalcHeight 方法供外部在布局变化时手动触发高度重算。
+ */
 export default defineComponent({
+  name: 'VxeContainer',
   props: {
+    /** 在计算结果基础上额外减少的高度（px），用于预留底部工具栏等空间 */
     extraHeight: { type: Number, default: 0 },
+    /** 分割方向：horizontal（水平分割）或 vertical（垂直分割） */
     direction: { type: String, default: 'horizontal' },
+    /** 子面板的初始大小百分比列表 */
     size: { type: Array, default: () => [] },
-    id: { type: String, default: '#1' },
+    /** 容器唯一标识，拼接在 DOM id 上 */
+    id: { type: String, default: '1' },
   },
 
   setup(props, { expose }) {
     const slots = useSlots();
 
+    /** DOM id 前缀 */
     const prefixId = '@sirpho-vxe-container';
 
+    /** 动态计算容器可用高度（视口高度 - 顶部偏移 - 8px 余量） */
     const { height, calcHeight } = useCalcHeight(`${prefixId}-${props.id}`);
 
+    /**
+     * 手动触发高度重算（在外部布局变化后调用）
+     */
     const reCalcHeight = () => {
       nextTick(() => {
         calcHeight();

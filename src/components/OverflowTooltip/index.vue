@@ -14,7 +14,9 @@ import type { TooltipProps } from 'ant-design-vue';
 import { getPadding } from '../../utils';
 
 interface Props extends TooltipProps {
+  /** 超出多少行显示省略号，默认 1 行 */
   overflowLine?: number;
+  /** Tooltip 显示的标题文本 */
   title?: string;
 }
 const props = withDefaults(defineProps<Props>(), {
@@ -23,10 +25,13 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 /**
- * 打开
+ * Tooltip 显示状态控制：undefined 表示由组件自动管理（有溢出时显示），false 强制隐藏
  */
 const visible = ref<boolean | undefined>(false);
 
+/**
+ * 合并后的 Tooltip 属性：将组件 props 透传，同时用 visible 控制 display 状态
+ */
 const bindProps = computed(() => ({
   ...props,
   // visible将作废
@@ -35,8 +40,9 @@ const bindProps = computed(() => ({
 }));
 
 /**
- * 鼠标移入单元格
- * @param event
+ * 鼠标移入单元格事件：通过 Range 测量文本实际渲染尺寸与容器尺寸对比，
+ * 判断是否存在文本溢出（横向或纵向），自动决定是否显示 Tooltip
+ * @param event - 鼠标移入事件对象
  */
 const handleMouseEnter = (event: MouseEvent) => {
   // 判断是否text-overflow, 如果是就显示tooltip
@@ -63,6 +69,9 @@ const handleMouseEnter = (event: MouseEvent) => {
       : false;
 };
 
+/**
+ * 生成多行文本溢出省略的 CSS 样式对象
+ */
 const ellipsisStyle: ComputedRef<CSSProperties> = computed(() => ({
   wordBreak: 'break-all',
   textOverflow: 'ellipsis',

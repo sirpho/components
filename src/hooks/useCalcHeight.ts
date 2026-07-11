@@ -8,6 +8,13 @@ interface IUseCalcHeight {
   calcHeight: Function;
 }
 
+/**
+ * 根据目标元素到页面顶部的距离，动态计算可用高度（视口高度 - 元素顶部距离 - 8px 余量）。
+ * 同时监听 window resize 事件，窗口大小变化时自动重新计算。
+ * @param elementId - 目标 DOM 元素的 ID
+ * @param minHeight - 最小高度限制，计算结果小于此值时取该值，默认 100
+ * @returns 包含响应式高度 ref 和手动触发计算的方法
+ */
 export default function useCalcHeight(elementId: string, minHeight = 100): IUseCalcHeight {
   const height = ref<number>(300);
 
