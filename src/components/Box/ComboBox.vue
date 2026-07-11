@@ -63,7 +63,7 @@
 <script lang="ts" setup>
   import { computed, onMounted, ref } from 'vue';
   import { Input, Select, Form } from 'ant-design-vue';
-  import type { VxeGridProps, VxeGridInstance, VxePulldownInstance } from 'vxe-table';
+  import type { VxeGridInstance, VxePulldownInstance } from 'vxe-table';
   import type { InputProps } from 'ant-design-vue';
   import { SelectCommonContext } from './common';
   import { comboBoxDefaultOption as defaultOption } from './config';
@@ -81,7 +81,7 @@
      * @description Vxe Grid的属性
      * @link https://vxetable.cn/#/grid/api
      */
-    gridProps?: VxeGridProps;
+    gridProps?: Record<string, any>;
     /**
      * @description Input属性
      * @link https://www.antdv.com/components/input-cn#API

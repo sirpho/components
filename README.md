@@ -29,3 +29,10 @@ pnpm build
 ```cmd
 npm i @sirpho/components
 ```
+
+# 发布npm版本
+
+1. 修改`package.json`中的版本号
+2. 运行`pnpm build`打包
+3. 运行`npm login`登录
+4. 运行`npm publish`发布

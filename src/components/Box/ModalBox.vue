@@ -92,7 +92,7 @@
 <script lang="ts" setup>
   import { ref, onMounted, computed, nextTick } from 'vue';
   import { Input, Select, Form, Button, AutoComplete } from 'ant-design-vue';
-  import type { VxeGridInstance, VxeGridProps } from 'vxe-table';
+  import type { VxeGridInstance } from 'vxe-table';
   import type { AutoCompleteProps, InputProps, ButtonProps } from 'ant-design-vue';
   import { DashOutlined } from '@ant-design/icons-vue';
   import { SelectCommonContext } from './common';
@@ -104,7 +104,7 @@
      * @description Vxe Grid的属性
      * @link https://vxetable.cn/#/grid/api
      */
-    gridProps?: VxeGridProps;
+    gridProps?: Record<string, any>;
     /**
      * @description Input属性 ant-design-vue
      * @link https://www.antdv.com/components/input-cn#API
@@ -220,7 +220,7 @@
   const props = withDefaults(defineProps<Props>(), {
     manualRequest: false,
     inputProps: () => ({} as any),
-    gridProps: () => ({}) as VxeGridProps,
+    gridProps: () => ({} as Record<string, any>),
     buttonProps: () => ({ size: 'small' }) as ButtonProps,
     mode: undefined,
     allowClear: true,
