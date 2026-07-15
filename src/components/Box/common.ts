@@ -267,10 +267,22 @@ export const SelectCommonContext = (args: SelectCommonContextArgs) => {
 
   /**
    * 处理复选框选择变化事件：多选模式下获取所有勾选行并同步值
+   * 注意：当表格处于过滤状态时，getCheckboxRecords 只返回可见的勾选行，
+   * 先前选中但被过滤掉的行会丢失。此处合并两者以确保选中状态不丢失。
    */
   const handleCheckboxChange = () => {
     if (props.mode !== 'multiple') return;
-    const data = xTable.value.getCheckboxRecords();
+    const checkedRecords = xTable.value.getCheckboxRecords();
+    const { value: fieldValue } = props.option;
+    // 收集当前已勾选行的 value 集合
+    const checkedValues = new Set(checkedRecords.map((item) => item[fieldValue]));
+    // 保留 rowDataList 中已被勾选但被过滤掉的行（不在 checkedRecords 中）
+    const hiddenSelected = rowDataList.value.filter(
+      (item) => !checkedValues.has(item[fieldValue]),
+    );
+    // 合并：过滤后仍选中的行 + 之前选中但被过滤掉的行
+    const data = [...checkedRecords, ...hiddenSelected];
+    rowDataList.value = data;
     setValue1(data);
   };
 
