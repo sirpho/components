@@ -65,21 +65,22 @@ export default defineComponent({
       }
 
       return (
-        <Splitpanes
+        <div
           id={`${prefixId}-${props.id}`}
           class="vxe-container default-theme"
-          horizontal={isHorizontal}
           data-calc-height={gridContainerHeight}
           style={{ height: polyfillHeight + 'px' }}
         >
-          {items.map((child, index) => {
-            return (
-              <Pane size={size.value[index]} min-size="20" max-size="100">
-                {child}
-              </Pane>
-            );
-          })}
-        </Splitpanes>
+          <Splitpanes horizontal={isHorizontal} style={{ height: '100%' }}>
+            {items.map((child, index) => {
+              return (
+                <Pane size={size.value[index]} min-size="20" max-size="100">
+                  {child}
+                </Pane>
+              );
+            })}
+          </Splitpanes>
+        </div>
       );
     };
   },
@@ -90,25 +91,25 @@ export default defineComponent({
   background-color: #fff;
 }
 
-.splitpanes.default-theme .splitpanes__pane {
+.default-theme .splitpanes__pane {
   background: #fff;
 }
 
-.default-theme.splitpanes--horizontal > .splitpanes__splitter,
+.default-theme .splitpanes--horizontal > .splitpanes__splitter,
 .default-theme .splitpanes--horizontal > .splitpanes__splitter {
   height: 0.5rem;
   border-top: unset;
   margin-top: -1px;
 }
 
-.default-theme.splitpanes--vertical > .splitpanes__splitter,
+.default-theme .splitpanes--vertical > .splitpanes__splitter,
 .default-theme .splitpanes--vertical > .splitpanes__splitter {
   width: 0.5rem;
   border: none;
   margin: 0;
 }
 
-.splitpanes.default-theme .splitpanes__splitter {
+.default-theme .splitpanes__splitter {
   box-sizing: border-box;
   position: relative;
   flex-shrink: 0;
